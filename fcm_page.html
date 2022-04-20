@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Fire Base Push Notification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <h2>Firebase Web Push Notification Example</h2>
+
+    <p id="token"></p>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-messaging.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyAMdXsj2MGr8_QxAm7h8iYvSFmkOg4hGbw",
+        authDomain: "studentmanagementsystem-5cf68.firebaseapp.com",
+        projectId: "studentmanagementsystem-5cf68",
+        storageBucket: "studentmanagementsystem-5cf68.appspot.com",
+        messagingSenderId: "83998176516",
+        appId: "1:83998176516:web:eac04c4a42afdffa4f4c51",
+        measurementId: "G-WMW93H0TWP",
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      const messaging = firebase.messaging();
+
+      function IntitalizeFireBaseMessaging() {
+        messaging
+          .requestPermission()
+          .then(function () {
+            console.log("Notification Permission");
+            return messaging.getToken();
+          })
+          .then(function (token) {
+            console.log("Token : " + token);
+            document.getElementById("token").innerHTML = token;
+          })
+          .catch(function (reason) {
+            console.log(reason);
+          });
+      }
+
+      // let enableForegroundNotification = true;
+
+      messaging.onMessage(function (payload) {
+        console.log("On Messsage Payload data"+ payload);
+        console.log(JSON.stringify(payload));
+        const notificationOption = {
+          body: payload.notification.body,
+          icon: payload.notification.icon,
+        };
+
+        if (Notification.permission === "granted") {
+          var notification = new Notification(
+            payload.notification.title,
+            notificationOption
+          );
+
+          notification.onclick = function (ev) {
+            ev.preventDefault();
+            window.open("http://127.0.0.1:5500/fcm_page.html", "_blank");
+            // window.open(payload.notification.click_action, "_blank");
+            
+            notification.close();
+          };
+        }
+
+        // if (enableForegroundNotification) {
+        //   let notification = payload.notification;
+        //   navigator.serviceWorker.getRegistrations().then((registration) => {
+        //     registration[0].showNotification(notification.title);
+        //   });
+        // }
+
+      });
+
+      messaging.onTokenRefresh(function () {
+        messaging
+          .getToken()
+          .then(function (newtoken) {
+            console.log("New Token : " + newtoken);
+          })
+          .catch(function (reason) {
+            console.log(reason);
+          });
+      });
+      IntitalizeFireBaseMessaging();
+    </script>
+  </body>
+</html>
